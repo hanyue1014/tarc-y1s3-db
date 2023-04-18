@@ -6,8 +6,12 @@ const fs = require("fs");
 const random = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const digitFormat = (num, pad) => num.toString().padStart(pad, "0");
 const twoDigitFormat = (num) => digitFormat(num, 2);
-const dateFormat = (date) => `${date.getFullYear()}-${twoDigitFormat(date.getMonth() + 1)}-${twoDigitFormat(date.getDate())}`;
-const timeFormat = (dateTime) => `${dateFormat(dateTime)} ${dateTime.getHours()}:${dateTime.getMinutes()}:${dateTime.getSeconds()}`;
+const dateFormat = (date) => `TO_DATE('${date.getFullYear()}-${twoDigitFormat(date.getMonth() + 1)}-${twoDigitFormat(date.getDate())}', 'YYYY-MM-DD')`;
+const timeFormat = (dateTime) => {
+  // console.log(dateTime)
+  return `TO_TIMESTAMP('${dateTime.getFullYear()}-${twoDigitFormat(dateTime.getMonth() + 1)}-${twoDigitFormat(dateTime.getDate())} ${twoDigitFormat(dateTime.getHours())}:${twoDigitFormat(dateTime.getMinutes())}:${twoDigitFormat(dateTime.getSeconds())}', 'YY-MM-DD HH24:MI:SS')`
+};
+const dateToIDFormat = (date) => `${twoDigitFormat(date.getFullYear().toString().substring(2, 4))}${twoDigitFormat(date.getMonth() + 1)}${twoDigitFormat(date.getDate())}`;
 // generates insert statements
 const inserter = (tableName, obj) => {
   let insert = `INSERT INTO ${tableName}(`;
@@ -17,10 +21,11 @@ const inserter = (tableName, obj) => {
   // comma as separator, ); as last element to close
   // if value is 'NULL', nonid '' directly NULL to insert NULL data, all other values shud have '' except number
   // very nested and ugly ifkr, but time is a factor for this, i don't need to maintain this code
+  // yes oracle uses double single quote to fking escape a single quote
   keys.forEach((k, i) =>
     insert += `${obj[k] === 'NULL' ?
       'NULL' :
-      `${typeof obj[k] === 'number' ? obj[k] : `'${obj[k]}'`}`
+      `${typeof obj[k] === 'number' ? obj[k] : obj[k].startsWith("TO_") ? obj[k] : `'${obj[k].replace("'", "''")}'`}`
     }${i !== keys.length - 1 ? ',' : ');\n'}`);
 
   return insert;
@@ -29,7 +34,7 @@ const inserter = (tableName, obj) => {
 const useIDGen = ({ incrementRate, yearStart } = {}) => {
   // more controllable incrementing
   // change percentage to decrease increment rate
-  const shudIncrement = () => Math.random() > (incrementRate || 0.9);
+  const shudIncrement = () => Math.random() > (incrementRate || 0.95);
 
   const dateData = {
     year: 20 + (yearStart || 0),
@@ -44,7 +49,7 @@ const useIDGen = ({ incrementRate, yearStart } = {}) => {
     let generated = `${dateData.year}${twoDigitFormat(dateData.month)}${twoDigitFormat(dateData.day)}${digitFormat(dateData.row++, 4)}`;
     if (shudIncrement()) {
       dateData.row = 1;  // new date d, reset ID
-      if (dateData.dayIncremented >= 4) {
+      if (dateData.dayIncremented >= 10) {
         dateData.dayIncremented = 0;
         dateData.day = 1;
         dateData.month++;
@@ -54,8 +59,8 @@ const useIDGen = ({ incrementRate, yearStart } = {}) => {
         }
       } else {
         dateData.dayIncremented++
-        // generate a number between 1 and 15, increment date by that number
-        dateData.day += random(1, 15);
+        // generate a number between 1 and 5, increment date by that number
+        dateData.day += random(1, 3);
         // max 31
         if ([1, 3, 5, 7, 8, 10, 12].includes(dateData.month)) {
           if (dateData.day >= 31) {
@@ -88,17 +93,18 @@ const randomDateGreater = (date, { min, max } = {}) => {
 }
 // used to generate random date greater than a date in ID
 // assumes id has the format of YYMMDDXXXX (YY = year, MM = month, DD = day, XXXX = id)
-const randomDateGreaterThanID = (id) => {
+const randomDateGreaterThanID = (id, {max} = {}) => {
   // parse the ID
   const year = id.substring(0, 2);
   const month = id.substring(2, 4);
   const day = id.substring(4, 6);
 
-  const newDate = randomDateGreater(`${month}/${day}/${year}`, { max: 4 });
+  const newDate = randomDateGreater(`${month}/${day}/${year}`, { max: max !== undefined ? max : 4 });
   return newDate;
 }
 // generates a date greater date given by 1 to 14 hours
 const randomDateGreaterHour = (date) => {
+  // console.log(date);
   const newDate = new Date(date);
 
   newDate.setHours(newDate.getHours() + random(1, 14));
@@ -259,9 +265,9 @@ console.log("Generating Facility Reserved...");
 for (let u = 0; u < 3; u++) {
   const newFacilityReservedID = useIDGen({
     yearStart: u,
-    incrementRate: 0.67,
+    incrementRate: 0.825,
   });
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 400; i++) {
     const FacilityReservedID = newFacilityReservedID();
     const ReservedStartDate = randomDateGreaterThanID(FacilityReservedID);
     const ReservedEndDate = randomDateGreater(ReservedStartDate, { min: 2, max: 7 });
@@ -288,15 +294,22 @@ for (let u = 0; u < 3; u++) {
 // technically just assign all facility id to all facility reserved id for now cuz only have 10 facility and 100 facility reserved, and we need 1k for associative
 console.log("Generating Facility Reserved List...");
 const facilityReservedList = [];
-for (let i = 0; i < facilityReserved.length; i++) {
+
+facilityReserved.forEach(fr => {
   let facilityReservedItem = {
-    FacilityReservedID: facilityReserved[i].FacilityReservedID,
+    FacilityReservedID: fr.FacilityReservedID,
     FacilityID: "",
   }
+  let previousFacilityIdx = [random(0, facilities.length - 1)]
   for (let j = 0; j < random(0, facilities.length - 1); j++) {
+    let newIdx = random(0, facilities.length - 1);
+    while (previousFacilityIdx.includes(newIdx))
+      newIdx = random(0, facilities.length - 1);
+    
+    previousFacilityIdx.push(newIdx);
     let facilityReservedItemClone = {
       ...facilityReservedItem,
-      FacilityID: facilities[random(0, facilities.length - 1)].FacilityID
+      FacilityID: facilities[newIdx].FacilityID,
     };
     facilityReservedList.push(facilityReservedItemClone);
     // HACK: COMMENT ME
@@ -306,27 +319,29 @@ for (let i = 0; i < facilityReserved.length; i++) {
       { flag: 'a' }
     );
   }
-}
+})
 
 // Reservation
 console.log("Generating Reservations...");
+const possibleNotes = ["I would like to request a quiet room away from any noise from the street.", "Could I have a room with a bathtub instead of just a shower?", "I have a preference for firm pillows, please provide them in the room.", "I am allergic to feathers, please ensure there are no feather pillows or blankets in the room.", "I am traveling with a group and would like our rooms to be located close together.", "I would like a room with a balcony or terrace.", "I require a refrigerator in the room to store medication.", "Could you please arrange for a taxi to pick me up from the airport?", "I am a light sleeper, please provide earplugs in the room.", "I am celebrating my wedding anniversary, could you provide a bottle of champagne in the room?", "I would like to request an extra blanket for the bed.", "Could you please provide an iron and ironing board in the room?", "I would like to request a room with a sofa or comfortable seating area.", "I am traveling with a baby, could you provide a crib in the room?", "I have a preference for a room with lots of natural light.", "I am allergic to scented products, please ensure that no scented cleaning products are used in the room.", "I would like to request a room with a mini-fridge to store snacks and drinks.", "Could you provide an extra set of towels in the room?", "I am a frequent traveler and would appreciate an upgrade to a higher room category if available.", "I am attending a conference and require a late-night room service option."]
 // save reservation data for later use
 const reservations = [];
 for (let u = 0; u < 3; u++) {
   const newReservationID = useIDGen({
     yearStart: u,
-    incrementRate: 0.67,
+    incrementRate: 0.825,
   });
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 400; i++) {
     const ReservationID = newReservationID();
     const StartDate = randomDateGreaterThanID(ReservationID);
-    const EndDate = randomDateGreater(StartDate);
+    const EndDate = randomDateGreater(StartDate, { min: 1 });
+    const shouldHaveNotes = Math.random() > 0.7;
     let reservation = {
       ReservationID,
       CustID: customers[random(0, customers.length - 1)].CustID,
       StartDate: dateFormat(StartDate),
       EndDate: dateFormat(EndDate),
-      Notes: "",
+      Notes: shouldHaveNotes ? possibleNotes[random(0, possibleNotes.length - 1)] : "NULL",
     };
     reservations.push(reservation);
     // HACK: COMMENT ME
@@ -469,17 +484,17 @@ reservations.forEach(r => {
     RoomNum: "",
     PackageID: "A",
   };
-  let lastIdxRoom = random(0, rooms.length - 1);
+  let lastIdxRoom = [random(0, rooms.length - 1)];
   for (let i = 0; i < random(2, 5); i++) {
     const shouldGtPackage = Math.random() > 0.5;
 
     // generate new idx if the room has repeated
     let newIdx = random(0, rooms.length - 1);
-    while (newIdx === lastIdxRoom) {
+    while (lastIdxRoom.includes(newIdx)) {
       newIdx = random(0, rooms.length - 1);
     }
     // update for next iteration
-    lastIdxRoom = newIdx;
+    lastIdxRoom.push(newIdx);
     let reservedRoomClone = {
       ...reservedRoom,
       RoomNum: rooms[newIdx].RoomNum,
@@ -534,7 +549,8 @@ const promoCodes = [
 console.log("Generating Payments...");
 const payments = [];
 const paymentTypes = ["E-WALLET", "CASH", "CARD"]
-let currPaymentID = 1;
+let currPaymentID = 0;
+let lastFacPaymentDate = null;
 // every facility reservation
 facilityReserved.forEach(fr => {
   // get only the same facility reserved id (can get price)
@@ -550,8 +566,20 @@ facilityReserved.forEach(fr => {
   }, 0);
   Amount = Amount * (shouldPromo ? 1 - promoCodes[randomPromoIdx][randomPromo] : 1);
   // console.log(totalPrice);
+  let paymentDate = randomDateGreaterThanID(fr.FacilityReservedID, {max: 1});
+  if (lastFacPaymentDate && lastFacPaymentDate < paymentDate) {
+    currPaymentID = 1;  // will be at least second iter until this will be ran
+    lastFacPaymentDate = paymentDate;
+  } else {
+    currPaymentID++;
+    // init lastFacPaymentDate if not yet init
+    if (!lastFacPaymentDate) {
+      lastFacPaymentDate = paymentDate;
+    }
+    paymentDate = lastFacPaymentDate;
+  }
   let payment = {
-    PaymentID: `F${digitFormat(currPaymentID++, 9)}`,
+    PaymentID: `${dateToIDFormat(paymentDate)}${digitFormat(currPaymentID, 4)}`,
     PromoCode: shouldPromo ? randomPromo : "NULL",
     ReservationID: "NULL",
     FacilityReservedID: fr.FacilityReservedID,
@@ -570,6 +598,7 @@ facilityReserved.forEach(fr => {
 
 // reset for room
 currPaymentID = 1;
+let lastResPaymentDate = null;
 reservations.forEach(r => {
   // get only the same facility reserved id (can get price)
   let rid = reservedRooms.filter(rr => r.ReservationID === rr.ReservationID);
@@ -599,8 +628,24 @@ reservations.forEach(r => {
 
   Amount = Amount * (shouldPromo ? 1 - promoCodes[randomPromoIdx][randomPromo] : 1);
   // console.log(totalPrice);
+  let paymentDate = randomDateGreaterThanID(r.ReservationID, {max: 1});
+  // fetch last payment id of the facility part (in case got that date)
+  let lastIDOfDateO = payments.findLast(p => p.PaymentID.startsWith(dateToIDFormat(paymentDate)));
+  if (lastResPaymentDate && lastResPaymentDate < paymentDate) {
+    lastResPaymentDate = paymentDate;
+    currPaymentID = parseInt(lastIDOfDateO?.PaymentID?.substring(6) || 0) + 1;
+  } else {
+    // init lastFacPaymentDate if not yet init
+    if (!lastResPaymentDate) {
+      lastResPaymentDate = paymentDate;
+      currPaymentID = parseInt(lastIDOfDateO?.PaymentID?.substring(6) || 0) + 1;
+    }
+    paymentDate = lastResPaymentDate;
+    lastIDOfDateO = payments.findLast(p => p.PaymentID.startsWith(dateToIDFormat(paymentDate)));
+    currPaymentID = parseInt(lastIDOfDateO?.PaymentID?.substring(6) || 0) + 1;
+  }
   let payment = {
-    PaymentID: `R${digitFormat(currPaymentID++, 9)}`,
+    PaymentID: `${dateToIDFormat(paymentDate)}${digitFormat(currPaymentID, 4)}`,
     PromoCode: shouldPromo ? randomPromo : "NULL",
     ReservationID: r.ReservationID,
     FacilityReservedID: "NULL",
@@ -618,31 +663,8 @@ reservations.forEach(r => {
 
 // console.log(payments.filter(p => p.PaymentID.startsWith("R")));
 
-// Check In Out
-console.log("Generating Check In Out Records...");
-const checkInOut = [];
-reservations.forEach(r => {
-  let checkIn = {
-    ReservationID: r.ReservationID,
-    CheckInOutType: "CHECKIN",
-    CheckInOutDateTime: timeFormat(randomDateGreaterHour(r.StartDate)),
-  };
-  let checkOut = {
-    ReservationID: r.ReservationID,
-    CheckInOutType: "CHECKOUT",
-    CheckInOutDateTime: timeFormat(randomDateGreaterHour(r.EndDate)),
-  };
-
-  checkInOut.push(checkIn, checkOut);
-  // HACK: UNCOMMENT ME
-  fs.writeFileSync(
-    "./insertSqls/11-InsertCheckInOut.txt",
-    `${inserter("CheckInOut", checkIn)}${inserter("CheckInOut", checkOut)}`,
-    { flag: 'a' }
-  );
-});
-
 // Cancellation
+// need generate cancellation before checkInOut so that cancellation eh no included in checkInOut
 console.log("Generating Cancellation...");
 const cancellation = [];
 const cancellationReasons = [
@@ -658,12 +680,12 @@ const cancellationReasons = [
   'Death or funeral'
 ];
 // HACK: get from payments since everything can directly get from thr, include price as well
-const cancelled = faker.helpers.arrayElements(reservations, 50);
+const cancelled = faker.helpers.arrayElements(reservations, 100);
 
 let currentCancel = 1
 cancelled.forEach(c => {
   let cancel = {
-    CancelID: `C${digitFormat(currentCancel++, 10)}`,
+    CancelID: `C${digitFormat(currentCancel++, 9)}`,
     ReservationID: c.ReservationID,
     CancelReason: cancellationReasons[random(0, cancellationReasons.length - 1)],
   };
@@ -676,6 +698,31 @@ cancelled.forEach(c => {
   );
 });
 // console.log(cancellation)
+
+// Check In Out
+console.log("Generating Check In Out Records...");
+const checkInOut = [];
+reservations.filter(r => cancellation.every(c => c.ReservationID !== r.ReservationID)).forEach(r => {
+  let checkIn = {
+    ReservationID: r.ReservationID,
+    CheckInOutType: "CHECKIN",
+    CheckInOutDateTime: timeFormat(randomDateGreaterHour(r.StartDate.replace(/[()]/g, "").replace("TO_DATE", "").replace(", 'YYYY-MM-DD'", ""))),
+  };
+  let checkOut = {
+    ReservationID: r.ReservationID,
+    CheckInOutType: "CHECKOUT",
+    CheckInOutDateTime: timeFormat(randomDateGreaterHour(r.EndDate.replace(/[()]/g, "").replace("TO_DATE", "").replace(", 'YYYY-MM-DD'", ""))),
+  };
+
+  checkInOut.push(checkIn, checkOut);
+  // HACK: UNCOMMENT ME
+  fs.writeFileSync(
+    "./insertSqls/11-InsertCheckInOut.txt",
+    `${inserter("CheckInOut", checkIn)}${inserter("CheckInOut", checkOut)}`,
+    { flag: 'a' }
+  );
+});
+
 
 // Refund
 console.log("Generating Refunds...");

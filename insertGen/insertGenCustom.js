@@ -86,7 +86,7 @@ const facility = [
     FacilityID: "GYM1",
     FacilityDesc: "GYM: Useful for gym workshops that teaches students for only a certain period",
     StartTime: "10:00",
-    EndTIme: "00.00",
+    EndTIme: "00:00",
     FacilityPrice: 680.00,
   },
 ];

@@ -6,8 +6,8 @@ CREATE TABLE Customer (
   CustAge         NUMBER(3) NOT NULL,
   CustPhone       VARCHAR(20) UNIQUE,
   CustEmail       VARCHAR(40) UNIQUE,
-  CustType        VARCHAR(9) NOT NULL DEFAULT 'MALAYSIAN',
-  MaritalStatus   VARCHAR(7) NOT NULL DEFAULT 'SINGLE',
+  CustType        VARCHAR(9) DEFAULT 'MALAYSIAN',
+  MaritalStatus   VARCHAR(7) DEFAULT 'SINGLE',
   PRIMARY KEY (CustID),
   CONSTRAINT CHK_AGE
     CHECK (CustAge >= 18),
@@ -15,7 +15,7 @@ CREATE TABLE Customer (
   CONSTRAINT CHK_EMAIL
     CHECK(
       CustEmail IS NULL OR 
-      REGEXP_LIKE(CustEmail, '^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+      REGEXP_LIKE(CustEmail, '^[A-Za-z]+[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$')
     ),
   -- phone can be null or it must match the format (assume foreigner will buy malaysia sim)
   CONSTRAINT CHK_PHONE

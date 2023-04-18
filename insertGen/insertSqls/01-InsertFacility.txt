@@ -7,4 +7,4 @@ INSERT INTO Facility(FacilityID,FacilityDesc,StartTime,EndTime,FacilityPrice) VA
 INSERT INTO Facility(FacilityID,FacilityDesc,StartTime,EndTime,FacilityPrice) VALUES ('BAC1','Basketball Court: Play basketball under protection from rain and sun','08:00','22:00',400);
 INSERT INTO Facility(FacilityID,FacilityDesc,StartTime,EndTime,FacilityPrice) VALUES ('RES1','Restaurant: Book for functions like dinners','10:00','00:00',500);
 INSERT INTO Facility(FacilityID,FacilityDesc,StartTime,EndTIme,FacilityPrice) VALUES ('SPA1','Spa: Especially useful if you want to host SPA parties','10:00','21:00',700);
-INSERT INTO Facility(FacilityID,FacilityDesc,StartTime,EndTIme,FacilityPrice) VALUES ('GYM1','GYM: Useful for gym workshops that teaches students for only a certain period','10:00','00.00',680);
+INSERT INTO Facility(FacilityID,FacilityDesc,StartTime,EndTIme,FacilityPrice) VALUES ('GYM1','GYM: Useful for gym workshops that teaches students for only a certain period','10:00','00:00',680);

@@ -1,0 +1,14 @@
+DROP TABLE Refund;
+DROP TABLE Cancellation;
+DROP TABLE CheckInOut;
+DROP TABLE Payment;
+DROP TABLE Promo;
+DROP TABLE ReservedRoom;
+DROP TABLE RoomPackage;
+DROP TABLE Room;
+DROP TABLE RoomType;
+DROP TABLE Reservation;
+DROP TABLE FacilityReservedList;
+DROP TABLE FacilityReserved;
+DROP TABLE Facility;
+DROP TABLE Customer;
