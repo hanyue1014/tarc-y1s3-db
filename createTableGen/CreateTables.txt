@@ -21,7 +21,7 @@ CREATE TABLE Customer (
   CONSTRAINT CHK_PHONE
     CHECK(
       CustPhone IS NULL OR 
-      REGEXP_LIKE(CustEmail, '^\d{10,11}$')
+      REGEXP_LIKE(CustPhone, '^\d{10,11}$')
     ),
   -- for way of contact, only email or phone number can be null at one time
   CONSTRAINT CHK_CONTACT
