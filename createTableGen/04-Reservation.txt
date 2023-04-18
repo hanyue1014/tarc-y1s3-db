@@ -1,0 +1,10 @@
+-- Reservation (ReservationID, CustID*, StartDate, EndDate, Notes)
+CREATE TABLE Reservation (
+  ReservationID   VARCHAR(10) NOT NULL,
+  CustID          VARCHAR(10) NOT NULL,
+  StartDate       DATE NOT NULL,
+  EndDate         DATE NOT NULL,
+  Notes           VARCHAR(255),
+  PRIMARY KEY (ReservationID),
+  FOREIGN KEY (CustID) REFERENCES Customer(CustID)
+);

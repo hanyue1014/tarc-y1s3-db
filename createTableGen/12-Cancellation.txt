@@ -1,0 +1,8 @@
+-- Cancellation (CancelID, ReservationID*, CancelReason)
+CREATE TABLE Cancellation (
+  CancelID        VARCHAR(10) NOT NULL,
+  ReservationID   VARCHAR(10) NOT NULL,
+  CancelReason    VARCHAR(255) NOT NULL,
+  PRIMARY KEY (CancelID),
+  FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID)
+);

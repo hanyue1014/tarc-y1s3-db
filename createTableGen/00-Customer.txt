@@ -1,0 +1,39 @@
+-- Customer (CustID, CustIdenNo, CustName, CustAge, CustPhone, CustEmail, CustType, MartialStatus)
+CREATE TABLE Customer (
+  CustID          VARCHAR(10) NOT NULL,  -- primary key auto UNIQUE
+  CustIdenNo      VARCHAR(14) UNIQUE NOT NULL,
+  CustName        VARCHAR(50) NOT NULL,
+  CustAge         NUMBER(3) NOT NULL,
+  CustPhone       VARCHAR(20) UNIQUE,
+  CustEmail       VARCHAR(40) UNIQUE,
+  CustType        VARCHAR(9) NOT NULL DEFAULT 'MALAYSIAN',
+  MaritalStatus   VARCHAR(7) NOT NULL DEFAULT 'SINGLE',
+  PRIMARY KEY (CustID),
+  CONSTRAINT CHK_AGE
+    CHECK (CustAge >= 18),
+  -- email can be null or it must match the format
+  CONSTRAINT CHK_EMAIL
+    CHECK(
+      CustEmail IS NULL OR 
+      REGEXP_LIKE(CustEmail, '^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+    ),
+  -- phone can be null or it must match the format (assume foreigner will buy malaysia sim)
+  CONSTRAINT CHK_PHONE
+    CHECK(
+      CustPhone IS NULL OR 
+      REGEXP_LIKE(CustEmail, '^\d{10,11}$')
+    ),
+  -- for way of contact, only email or phone number can be null at one time
+  CONSTRAINT CHK_CONTACT
+    CHECK(
+      CustPhone IS NOT NULL OR CustEmail IS NOT NULL
+    ),
+  CONSTRAINT CHK_CUST_TYPE
+    CHECK(
+      CustType IN ('MALAYSIAN', 'FOREIGNER')
+    ),
+  CONSTRAINT CHK_CUST_MARITAL_STAT
+    CHECK(
+      MaritalStatus IN ('MARRIED', 'SINGLE')
+    )
+);

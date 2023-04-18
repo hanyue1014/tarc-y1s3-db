@@ -1,0 +1,7 @@
+-- RoomPackage (PackageID, PackageDesc, PackagePrice)
+CREATE TABLE RoomPackage (
+  PackageID     VARCHAR(1) NOT NULL,  -- packages are common to all rooms
+  PackageDesc   VARCHAR(255),
+  PackagePrice  NUMBER(5, 2) NOT NULL,
+  PRIMARY KEY (PackageID)
+);

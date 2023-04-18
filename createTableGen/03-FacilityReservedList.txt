@@ -1,0 +1,8 @@
+-- FacilityReservedList (FacilityReservedID*, FacilityID*)
+CREATE TABLE FacilityReservedList (
+  FacilityReservedID    VARCHAR(10) NOT NULL,
+  FacilityID            VARCHAR(10) NOT NULL,
+  PRIMARY KEY (FacilityReservedID, FacilityID),
+  FOREIGN KEY (FacilityReservedID) REFERENCES FacilityReserved(FacilityReservedID),
+  FOREIGN KEY (FacilityID) REFERENCES Facility(FacilityID)
+);

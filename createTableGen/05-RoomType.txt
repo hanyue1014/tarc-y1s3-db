@@ -1,0 +1,7 @@
+-- RoomType (RoomType, RoomDesc, RoomPrice)
+CREATE TABLE RoomType (
+  RoomType        VARCHAR(3) NOT NULL,
+  RoomDesc        VARCHAR(255),
+  RoomPrice       NUMBER(7, 2) NOT NULL,  -- president suite can be **VERY** expensive
+  PRIMARY KEY (RoomType)
+);

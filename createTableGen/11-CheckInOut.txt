@@ -1,0 +1,12 @@
+-- CheckInOut (ReservationID*, CheckInOutType, CheckInOutDateTime)
+CREATE TABLE CheckInOut (
+  ReservationID       VARCHAR(10) NOT NULL,
+  CheckInOutType      VARCHAR(8) NOT NULL,
+  CheckInOutDateTime  TIMESTAMP NOT NULL,
+  PRIMARY KEY (ReservationID, CheckInOutType),
+  FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID),
+  CONSTRAINT CHK_CHECK_IN_OUT_TYPE
+    CHECK(
+      CheckInOutType IN ('CHECKIN', 'CHECKOUT')
+    )
+);

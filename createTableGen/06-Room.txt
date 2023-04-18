@@ -1,0 +1,7 @@
+-- Room (RoomNum, RoomType*)
+CREATE TABLE Room (
+  RoomNum     VARCHAR(4) NOT NULL,  -- max 2 digit number of floors, max 99 rooms per floor
+  RoomType    VARCHAR(3) NOT NULL,
+  PRIMARY KEY (RoomNum),
+  FOREIGN KEY (RoomType) REFERENCES RoomType(RoomType)
+);

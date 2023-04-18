@@ -1,0 +1,15 @@
+-- Facility (FacilityID, FacilityDesc, StartTime, EndTime, FacilityPrice)
+CREATE TABLE Facility (
+  FacilityID    VARCHAR(10) NOT NULL,
+  FacilityDesc  VARCHAR(255),
+  StartTime     VARCHAR(20) NOT NULL,
+  EndTime       VARCHAR(20) NOT NULL,
+  FacilityPrice NUMBER(6, 2) NOT NULL,
+  PRIMARY KEY (FacilityID),
+  -- apply regex to check if the time got follow format (HH24:MI) (will use to_char)
+  CONSTRAINT CHK_TIME_FORMAT 
+    CHECK(
+      REGEXP_LIKE(StartTime, '^([01][0-9]|2[0-3]):[0-5][0-9]$') AND
+      REGEXP_LIKE(EndTime, '^([01][0-9]|2[0-3]):[0-5][0-9]$')
+    )
+);

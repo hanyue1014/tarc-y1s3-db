@@ -1,0 +1,8 @@
+-- Refund (RefundID, CancelID*, RefundAmount)
+CREATE TABLE Refund (
+  RefundID      VARCHAR(10) NOT NULL,
+  CancelID      VARCHAR(10) NOT NULL,
+  RefundAmount  NUMBER(7, 2) NOT NULL,
+  PRIMARY KEY (RefundID),
+  FOREIGN KEY (CancelID) REFERENCES Cancellation(CancelID)
+);

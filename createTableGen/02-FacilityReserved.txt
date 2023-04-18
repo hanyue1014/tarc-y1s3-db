@@ -1,0 +1,9 @@
+-- FacilityReserved (FacilityReservedID, CustID*, ReservedStartDate, ReservedEndDate)
+CREATE TABLE FacilityReserved (
+  FacilityReservedID    VARCHAR(10) NOT NULL,
+  CustID                VARCHAR(10) NOT NULL,
+  ReservedStartDate     DATE NOT NULL,
+  ReservedEndDate       DATE NOT NULL,
+  PRIMARY KEY (FacilityReservedID),
+  FOREIGN KEY (CustID) REFERENCES Customer(CustID)
+);

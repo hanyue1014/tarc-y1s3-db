@@ -1,0 +1,23 @@
+-- Payment (PaymentID, PromoCode*, ReservationID*, FacilityReservedID*, PaymentType, Amount)
+CREATE TABLE Payment (
+  PaymentID             VARCHAR(10) NOT NULL,
+  PromoCode             VARCHAR(6),
+  ReservationID         VARCHAR(10),
+  FacilityReservedID    VARCHAR(10),
+  PaymentType           VARCHAR(8) DEFAULT 'CASH',
+  Amount                NUMBER(7, 2) NOT NULL,
+  PRIMARY KEY (PaymentID),
+  FOREIGN KEY (PromoCode) REFERENCES Promo(PromoCode),
+  FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID),
+  FOREIGN KEY (FacilityReservedID) REFERENCES FacilityReserved(FacilityReservedID),
+  -- user can only book a room or a facility in one reservation, so if one null, the other should not be null, and both cannot be not null at the same time
+  CONSTRAINT CHK_ROOM_OR_FACILITY
+    CHECK (
+      (ReservationID IS NOT NULL AND FacilityReservedID IS NULL) OR 
+      (FacilityReservedID IS NOT NULL AND ReservationID IS NULL)
+    )
+  CONSTRAINT CHK_PAYMENT_TYPE
+    CHECK(
+      PaymentType IN ('E-WALLET', 'CARD', 'CASH')
+    )
+);

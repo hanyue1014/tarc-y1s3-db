@@ -1,0 +1,10 @@
+INSERT INTO Promo(PromoCode,PromoPercent,PromoPlatform) VALUES ('YTDISC',0.1,'YOUTUBE');
+INSERT INTO Promo(PromoCode,PromoPercent,PromoPlatform) VALUES ('FBDISC',0.2,'FACEBOOK');
+INSERT INTO Promo(PromoCode,PromoPercent,PromoPlatform) VALUES ('TTDISC',0.1,'TWITTER');
+INSERT INTO Promo(PromoCode,PromoPercent,PromoPlatform) VALUES ('IGDISC',0.2,'INSTAGRAM');
+INSERT INTO Promo(PromoCode,PromoPercent,PromoPlatform) VALUES ('WSDISC',0.25,'WEBSITE');
+INSERT INTO Promo(PromoCode,PromoPercent,PromoPlatform) VALUES ('BNDISC',0.1,'BANNER');
+INSERT INTO Promo(PromoCode,PromoPercent,PromoPlatform) VALUES ('TG1234',0.2,'THANKSGIVING');
+INSERT INTO Promo(PromoCode,PromoPercent,PromoPlatform) VALUES ('TG4231',0.3,'THANKSGIVING');
+INSERT INTO Promo(PromoCode,PromoPercent,PromoPlatform) VALUES ('TG5678',0.3,'THANKSGIVING');
+INSERT INTO Promo(PromoCode,PromoPercent,PromoPlatform) VALUES ('TG8765',0.35,'THANKSGIVING');

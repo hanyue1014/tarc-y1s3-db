@@ -1,0 +1,185 @@
+-- Customer (CustID, CustIdenNo, CustName, CustAge, CustPhone, CustEmail, CustType, MartialStatus)
+CREATE TABLE Customer (
+  CustID          VARCHAR(10) NOT NULL,  -- primary key auto UNIQUE
+  CustIdenNo      VARCHAR(14) UNIQUE NOT NULL,
+  CustName        VARCHAR(50) NOT NULL,
+  CustAge         NUMBER(3) NOT NULL,
+  CustPhone       VARCHAR(20) UNIQUE,
+  CustEmail       VARCHAR(40) UNIQUE,
+  CustType        VARCHAR(9) NOT NULL DEFAULT 'MALAYSIAN',
+  MaritalStatus   VARCHAR(7) NOT NULL DEFAULT 'SINGLE',
+  PRIMARY KEY (CustID),
+  CONSTRAINT CHK_AGE
+    CHECK (CustAge >= 18),
+  -- email can be null or it must match the format
+  CONSTRAINT CHK_EMAIL
+    CHECK(
+      CustEmail IS NULL OR 
+      REGEXP_LIKE(CustEmail, '^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+    ),
+  -- phone can be null or it must match the format (assume foreigner will buy malaysia sim)
+  CONSTRAINT CHK_PHONE
+    CHECK(
+      CustPhone IS NULL OR 
+      REGEXP_LIKE(CustEmail, '^\d{10,11}$')
+    ),
+  -- for way of contact, only email or phone number can be null at one time
+  CONSTRAINT CHK_CONTACT
+    CHECK(
+      CustPhone IS NOT NULL OR CustEmail IS NOT NULL
+    ),
+  CONSTRAINT CHK_CUST_TYPE
+    CHECK(
+      CustType IN ('MALAYSIAN', 'FOREIGNER')
+    ),
+  CONSTRAINT CHK_CUST_MARITAL_STAT
+    CHECK(
+      MaritalStatus IN ('MARRIED', 'SINGLE')
+    )
+);
+
+-- Facility (FacilityID, FacilityDesc, StartTime, EndTime, FacilityPrice)
+CREATE TABLE Facility (
+  FacilityID    VARCHAR(10) NOT NULL,
+  FacilityDesc  VARCHAR(255),
+  StartTime     VARCHAR(20) NOT NULL,
+  EndTime       VARCHAR(20) NOT NULL,
+  FacilityPrice NUMBER(6, 2) NOT NULL,
+  PRIMARY KEY (FacilityID),
+  -- apply regex to check if the time got follow format (HH24:MI) (will use to_char)
+  CONSTRAINT CHK_TIME_FORMAT 
+    CHECK(
+      REGEXP_LIKE(StartTime, '^([01][0-9]|2[0-3]):[0-5][0-9]$') AND
+      REGEXP_LIKE(EndTime, '^([01][0-9]|2[0-3]):[0-5][0-9]$')
+    )
+);
+
+-- FacilityReserved (FacilityReservedID, CustID*, ReservedStartDate, ReservedEndDate)
+CREATE TABLE FacilityReserved (
+  FacilityReservedID    VARCHAR(10) NOT NULL,
+  CustID                VARCHAR(10) NOT NULL,
+  ReservedStartDate     DATE NOT NULL,
+  ReservedEndDate       DATE NOT NULL,
+  PRIMARY KEY (FacilityReservedID),
+  FOREIGN KEY (CustID) REFERENCES Customer(CustID)
+);
+
+-- FacilityReservedList (FacilityReservedID*, FacilityID*)
+CREATE TABLE FacilityReservedList (
+  FacilityReservedID    VARCHAR(10) NOT NULL,
+  FacilityID            VARCHAR(10) NOT NULL,
+  PRIMARY KEY (FacilityReservedID, FacilityID),
+  FOREIGN KEY (FacilityReservedID) REFERENCES FacilityReserved(FacilityReservedID),
+  FOREIGN KEY (FacilityID) REFERENCES Facility(FacilityID)
+);
+
+-- Reservation (ReservationID, CustID*, StartDate, EndDate, Notes)
+CREATE TABLE Reservation (
+  ReservationID   VARCHAR(10) NOT NULL,
+  CustID          VARCHAR(10) NOT NULL,
+  StartDate       DATE NOT NULL,
+  EndDate         DATE NOT NULL,
+  Notes           VARCHAR(255),
+  PRIMARY KEY (ReservationID),
+  FOREIGN KEY (CustID) REFERENCES Customer(CustID)
+);
+
+-- RoomType (RoomType, RoomDesc, RoomPrice)
+CREATE TABLE RoomType (
+  RoomType        VARCHAR(3) NOT NULL,
+  RoomDesc        VARCHAR(255),
+  RoomPrice       NUMBER(7, 2) NOT NULL,  -- president suite can be **VERY** expensive
+  PRIMARY KEY (RoomType)
+);
+
+-- Room (RoomNum, RoomType*)
+CREATE TABLE Room (
+  RoomNum     VARCHAR(4) NOT NULL,  -- max 2 digit number of floors, max 99 rooms per floor
+  RoomType    VARCHAR(3) NOT NULL,
+  PRIMARY KEY (RoomNum),
+  FOREIGN KEY (RoomType) REFERENCES RoomType(RoomType)
+);
+
+-- RoomPackage (PackageID, PackageDesc, PackagePrice)
+CREATE TABLE RoomPackage (
+  PackageID     VARCHAR(1) NOT NULL,  -- packages are common to all rooms
+  PackageDesc   VARCHAR(255),
+  PackagePrice  NUMBER(5, 2) NOT NULL,
+  PRIMARY KEY (PackageID)
+);
+
+-- ReservedRoom (ReservationID*, RoomNum*, PackageID*)
+CREATE TABLE ReservedRoom (
+  ReservationID   VARCHAR(10) NOT NULL,
+  RoomNum         VARCHAR(4) NOT NULL,
+  PackageID       VARCHAR(1) NOT NULL,
+  PRIMARY KEY (ReservationID, RoomNum, PackageID),
+  FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID),
+  FOREIGN KEY (RoomNum) REFERENCES Room(RoomNum),
+  FOREIGN KEY (PackageID) REFERENCES RoomPackage(PackageID)
+);
+
+-- Promo (PromoCode, PromoDesc, PromoPercent)
+CREATE TABLE Promo (
+  PromoCode       VARCHAR(6) NOT NULL,
+  PromoPlatform   VARCHAR(255),
+  PromoPercent    NUMBER(5, 2) NOT NULL,  -- 100.00% max
+  PRIMARY KEY (PromoCode),
+  CONSTRAINT CHK_PROMO_PERCENT_MINMAX 
+    CHECK (PromoPercent > 0 AND PromoPercent <= 100)
+);
+
+-- Payment (PaymentID, PromoCode*, ReservationID*, FacilityReservedID*, PaymentType, Amount)
+CREATE TABLE Payment (
+  PaymentID             VARCHAR(10) NOT NULL,
+  PromoCode             VARCHAR(6),
+  ReservationID         VARCHAR(10),
+  FacilityReservedID    VARCHAR(10),
+  PaymentType           VARCHAR(8) DEFAULT 'CASH',
+  Amount                NUMBER(7, 2) NOT NULL,
+  PRIMARY KEY (PaymentID),
+  FOREIGN KEY (PromoCode) REFERENCES Promo(PromoCode),
+  FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID),
+  FOREIGN KEY (FacilityReservedID) REFERENCES FacilityReserved(FacilityReservedID),
+  -- user can only book a room or a facility in one reservation, so if one null, the other should not be null, and both cannot be not null at the same time
+  CONSTRAINT CHK_ROOM_OR_FACILITY
+    CHECK (
+      (ReservationID IS NOT NULL AND FacilityReservedID IS NULL) OR 
+      (FacilityReservedID IS NOT NULL AND ReservationID IS NULL)
+    )
+  CONSTRAINT CHK_PAYMENT_TYPE
+    CHECK(
+      PaymentType IN ('E-WALLET', 'CARD', 'CASH')
+    )
+);
+
+-- CheckInOut (ReservationID*, CheckInOutType, CheckInOutDateTime)
+CREATE TABLE CheckInOut (
+  ReservationID       VARCHAR(10) NOT NULL,
+  CheckInOutType      VARCHAR(8) NOT NULL,
+  CheckInOutDateTime  TIMESTAMP NOT NULL,
+  PRIMARY KEY (ReservationID, CheckInOutType),
+  FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID),
+  CONSTRAINT CHK_CHECK_IN_OUT_TYPE
+    CHECK(
+      CheckInOutType IN ('CHECKIN', 'CHECKOUT')
+    )
+);
+
+-- Cancellation (CancelID, ReservationID*, CancelReason)
+CREATE TABLE Cancellation (
+  CancelID        VARCHAR(10) NOT NULL,
+  ReservationID   VARCHAR(10) NOT NULL,
+  CancelReason    VARCHAR(255) NOT NULL,
+  PRIMARY KEY (CancelID),
+  FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID)
+);
+
+-- Refund (RefundID, CancelID*, RefundAmount)
+CREATE TABLE Refund (
+  RefundID      VARCHAR(10) NOT NULL,
+  CancelID      VARCHAR(10) NOT NULL,
+  RefundAmount  NUMBER(7, 2) NOT NULL,
+  PRIMARY KEY (RefundID),
+  FOREIGN KEY (CancelID) REFERENCES Cancellation(CancelID)
+);

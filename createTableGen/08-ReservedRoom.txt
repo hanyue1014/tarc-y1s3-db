@@ -1,0 +1,10 @@
+-- ReservedRoom (ReservationID*, RoomNum*, PackageID*)
+CREATE TABLE ReservedRoom (
+  ReservationID   VARCHAR(10) NOT NULL,
+  RoomNum         VARCHAR(4) NOT NULL,
+  PackageID       VARCHAR(1) NOT NULL,
+  PRIMARY KEY (ReservationID, RoomNum, PackageID),
+  FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID),
+  FOREIGN KEY (RoomNum) REFERENCES Room(RoomNum),
+  FOREIGN KEY (PackageID) REFERENCES RoomPackage(PackageID)
+);
