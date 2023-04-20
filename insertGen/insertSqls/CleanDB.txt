@@ -1,0 +1,14 @@
+DELETE FROM Refund;
+DELETE FROM Cancellation;
+DELETE FROM CheckInOut;
+DELETE FROM Payment;
+DELETE FROM Promo;
+DELETE FROM ReservedRoom;
+DELETE FROM RoomPackage;
+DELETE FROM Room;
+DELETE FROM RoomType;
+DELETE FROM Reservation;
+DELETE FROM FacilityReservedList;
+DELETE FROM FacilityReserved;
+DELETE FROM Facility;
+DELETE FROM Customer;

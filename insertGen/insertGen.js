@@ -34,7 +34,7 @@ const inserter = (tableName, obj) => {
 const useIDGen = ({ incrementRate, yearStart } = {}) => {
   // more controllable incrementing
   // change percentage to decrease increment rate
-  const shudIncrement = () => Math.random() > (incrementRate || 0.95);
+  let shudIncrement = () => Math.random() > (incrementRate || 0.8);
 
   const dateData = {
     year: 20 + (yearStart || 0),
@@ -59,22 +59,29 @@ const useIDGen = ({ incrementRate, yearStart } = {}) => {
         }
       } else {
         dateData.dayIncremented++
-        // generate a number between 1 and 5, increment date by that number
+        // generate a number between 1 and 3, increment date by that number
         dateData.day += random(1, 3);
         // max 31
         if ([1, 3, 5, 7, 8, 10, 12].includes(dateData.month)) {
           if (dateData.day >= 31) {
             dateData.day = 31;
-            dateData.dayIncremented = 4;  // set 4, next time increment will directly increment month
+            dateData.dayIncremented = 10;  // set 4, next time increment will directly increment month
+          }
+          if (dateData.month === 10) {
+            shudIncrement = () => Math.random() > 0.95; // if month is 10 means next month is 11, shud have more customer per day
           }
         } else if (dateData.month === 2) {
           if (dateData.day >= 28) {
             dateData.day = 28;
-            dateData.dayIncremented = 4;
+            dateData.dayIncremented = 10;
           }
         } else if (dateData.day >= 30) {
           dateData.day = 30;
-          dateData.dayIncremented = 4;
+          dateData.dayIncremented = 10;
+          if (dateData.month === 11) {
+            // if month is 11 d means next month is 12, shud have more more more customer per day
+            shudIncrement = () => Math.random() > 0.99;
+          }
         }
       }
     }
@@ -267,7 +274,7 @@ for (let u = 0; u < 3; u++) {
     yearStart: u,
     incrementRate: 0.825,
   });
-  for (let i = 0; i < 400; i++) {
+  for (let i = 0; i < 1000; i++) {
     const FacilityReservedID = newFacilityReservedID();
     const ReservedStartDate = randomDateGreaterThanID(FacilityReservedID);
     const ReservedEndDate = randomDateGreater(ReservedStartDate, { min: 2, max: 7 });
@@ -331,7 +338,7 @@ for (let u = 0; u < 3; u++) {
     yearStart: u,
     incrementRate: 0.825,
   });
-  for (let i = 0; i < 400; i++) {
+  for (let i = 0; i < 1000; i++) {
     const ReservationID = newReservationID();
     const StartDate = randomDateGreaterThanID(ReservationID);
     const EndDate = randomDateGreater(StartDate, { min: 1 });
@@ -473,6 +480,36 @@ const roomPackages = [
     PackageID: "D",
     PackageDesc: "A package with the most complete goodies, including breakfast, lunch and dinner, by just adding on 20%",
     PackagePrice: 1.20,
+  },
+  {
+    PackageID: "E",
+    PackageDesc: "A package that allows you to enjoy your travel! Free transportation service provided by the hotel (vehicle is different based on room type) for an add on of 25%",
+    PackagePrice: 1.25,
+  },
+  {
+    PackageID: "F",
+    PackageDesc: "A package that gives you an additional discount when you visit the local attractions! Just add on a 20% to enjoy up to 50% discount on entry ticket prices!",
+    PackagePrice: 1.20,
+  },
+  {
+    PackageID: "G",
+    PackageDesc: "A package that gives you an additional bed and necessities allowing you to accomodate one more person in your room, with an add on of 10% only.",
+    PackagePrice: 1.10,
+  }, 
+  {
+    PackageID: "H",
+    PackageDesc: "A package that works best especially when you want to celebrate! Add on a 20% to have the room decorated with celebration atmospheres!",
+    PackagePrice: 1.20,
+  },
+  {
+    PackageID: "I",
+    PackageDesc: "A package that includes us hiring a professional local guide for you! Just add on 15%.",
+    PackagePrice: 1.15,
+  },
+  {
+    PackageID: "J",
+    PackageDesc: "A package that makes you feel like a king! Enjoy private tours and get VIP treatments such as a personal concierge or luxury car service, all by adding on 40%",
+    PackagePrice: 1.40,
   }
 ];
 // ReservedRoom
@@ -613,10 +650,9 @@ reservations.forEach(r => {
 
     // console.log(rto)
     // price of room of that room type
-    acc += rto[rt];
-
-    // calculate price based on package id
-    acc *= roomPackages.find(rp => rp.PackageID === cur.PackageID).PackagePrice
+    // package increase
+    let ppIncrease = roomPackages.find(rp => rp.PackageID === cur.PackageID).PackagePrice
+    acc += rto[rt] * ppIncrease;
 
     return acc;
   }, 0);
@@ -679,8 +715,8 @@ const cancellationReasons = [
   'Family emergencies',
   'Death or funeral'
 ];
-// HACK: get from payments since everything can directly get from thr, include price as well
-const cancelled = faker.helpers.arrayElements(reservations, 100);
+
+const cancelled = faker.helpers.arrayElements(reservations, 500);
 
 let currentCancel = 1
 cancelled.forEach(c => {
@@ -727,7 +763,7 @@ reservations.filter(r => cancellation.every(c => c.ReservationID !== r.Reservati
 // Refund
 console.log("Generating Refunds...");
 const refunds = [];
-const appliedRefunds = faker.helpers.arrayElements(cancellation, 40);
+const appliedRefunds = faker.helpers.arrayElements(cancellation, 350);
 let currRefund = 1;
 appliedRefunds.forEach(ar => {
   let paid = payments.find(p => p.ReservationID === ar.ReservationID);

@@ -173,6 +173,36 @@ const roomPackages = [
     PackageID: "D",
     PackageDesc: "A package with the most complete goodies, including breakfast, lunch and dinner, by just adding on 20%",
     PackagePrice: 1.20,
+  },
+  {
+    PackageID: "E",
+    PackageDesc: "A package that allows you to enjoy your travel! Free transportation service provided by the hotel (vehicle is different based on room type) for an add on of 25%",
+    PackagePrice: 1.25,
+  },
+  {
+    PackageID: "F",
+    PackageDesc: "A package that gives you an additional discount when you visit the local attractions! Just add on a 20% to enjoy up to 50% discount on entry ticket prices!",
+    PackagePrice: 1.20,
+  },
+  {
+    PackageID: "G",
+    PackageDesc: "A package that gives you an additional bed and necessities allowing you to accomodate one more person in your room, with an add on of 10% only.",
+    PackagePrice: 1.10,
+  }, 
+  {
+    PackageID: "H",
+    PackageDesc: "A package that works best especially when you want to celebrate! Add on a 20% to have the room decorated with celebration atmospheres!",
+    PackagePrice: 1.20,
+  },
+  {
+    PackageID: "I",
+    PackageDesc: "A package that includes us hiring a professional local guide for you! Just add on 15%.",
+    PackagePrice: 1.15,
+  },
+  {
+    PackageID: "J",
+    PackageDesc: "A package that makes you feel like a king! Enjoy private tours and get VIP treatments such as a personal concierge or luxury car service, all by adding on 40%",
+    PackagePrice: 1.40,
   }
 ]
 

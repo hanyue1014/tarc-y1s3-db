@@ -2,3 +2,9 @@ INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('A','Just an
 INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('B','A package that allows you to enjoy the delicious breakfast with only 10% add on',1.1);
 INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('C','A package with all the goodies of Package B (breakfast) with an additional lunch by adding on 15%',1.15);
 INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('D','A package with the most complete goodies, including breakfast, lunch and dinner, by just adding on 20%',1.2);
+INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('E','A package that allows you to enjoy your travel! Free transportation service provided by the hotel (vehicle is different based on room type) for an add on of 25%',1.25);
+INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('F','A package that gives you an additional discount when you visit the local attractions! Just add on a 20% to enjoy up to 50% discount on entry ticket prices!',1.2);
+INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('G','A package that gives you an additional bed and necessities allowing you to accomodate one more person in your room, with an add on of 10% only.',1.1);
+INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('H','A package that works best especially when you want to celebrate! Add on a 20% to have the room decorated with celebration atmospheres!',1.2);
+INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('I','A package that includes us hiring a professional local guide for you! Just add on 15%.',1.15);
+INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('J','A package that makes you feel like a king! Enjoy private tours and get VIP treatments such as a personal concierge or luxury car service, all by adding on 40%',1.4);
