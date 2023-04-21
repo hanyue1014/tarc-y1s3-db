@@ -5,7 +5,7 @@ CREATE TABLE Payment (
   ReservationID         VARCHAR(10),
   FacilityReservedID    VARCHAR(10),
   PaymentType           VARCHAR(8) DEFAULT 'CASH',
-  Amount                NUMBER(7, 2) NOT NULL,
+  Amount                NUMBER(9, 2) NOT NULL,
   PRIMARY KEY (PaymentID),
   FOREIGN KEY (PromoCode) REFERENCES Promo(PromoCode),
   FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID),

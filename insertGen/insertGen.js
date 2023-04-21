@@ -12,6 +12,7 @@ const timeFormat = (dateTime) => {
   return `TO_TIMESTAMP('${dateTime.getFullYear()}-${twoDigitFormat(dateTime.getMonth() + 1)}-${twoDigitFormat(dateTime.getDate())} ${twoDigitFormat(dateTime.getHours())}:${twoDigitFormat(dateTime.getMinutes())}:${twoDigitFormat(dateTime.getSeconds())}', 'YY-MM-DD HH24:MI:SS')`
 };
 const dateToIDFormat = (date) => `${twoDigitFormat(date.getFullYear().toString().substring(2, 4))}${twoDigitFormat(date.getMonth() + 1)}${twoDigitFormat(date.getDate())}`;
+const daysBetweenDates = (date1, date2) => Math.ceil((date2.getTime() - date1.getTime()) / 1000 / 60 / 60 / 24);
 // generates insert statements
 const inserter = (tableName, obj) => {
   let insert = `INSERT INTO ${tableName}(`;
@@ -196,29 +197,32 @@ const passportGenerator = () => {
 // generate customers
 const cs = ['Wong', 'Wang', 'Ong', 'Bong', 'Teng', 'Li', 'Lee', 'Lie', 'Chen', 'Chan', 'Chun', 'Chin', 'Tan', 'Huang', 'Ooi', 'Ng', 'Zhang', 'Cheung', 'Chang', 'Teo', 'Teoh', 'Chong'];
 console.log("Generating Customers...");
-for (let i = 0; i < 100; i++) {
-  // chinese surnames
-  const isForeigner = Math.random() > 0.5;
-  const isMarried = Math.random() > 0.4;
-  const firstName = faker.name.firstName();
-  const lastName = !isForeigner ? cs[random(0, cs.length - 1)] : faker.name.lastName();
-  const customer = {
-    CustID: newCustID(),
-    CustIdenNo: isForeigner ? passportGenerator() : newIC(),
-    CustName: `${firstName} ${lastName}`,
-    CustAge: random(18, 75),
-    CustPhone: faker.phone.number('01########'),
-    CustEmail: faker.internet.email(firstName, lastName),
-    CustType: isForeigner ? 'FOREIGNER' : 'MALAYSIAN',
-    MaritalStatus: isMarried ? 'MARRIED' : 'SINGLE',
-  };
-  customers.push(customer);
-  // HACK: COMMENT ME
-  fs.writeFileSync(
-    "./insertSqls/00-InsertCustomer.txt",
-    inserter("Customer", customer),
-    { flag: 'a' }
-  );
+for (let u = 0; u < 3; u++) {
+  const newCustID = useIDGen({incrementRate: 0.725, yearStart: u})
+  for (let i = 0; i < 100; i++) {
+    // chinese surnames
+    const isForeigner = Math.random() > 0.5;
+    const isMarried = Math.random() > 0.4;
+    const firstName = faker.name.firstName();
+    const lastName = !isForeigner ? cs[random(0, cs.length - 1)] : faker.name.lastName();
+    const customer = {
+      CustID: newCustID(),
+      CustIdenNo: isForeigner ? passportGenerator() : newIC(),
+      CustName: `${firstName} ${lastName}`,
+      CustAge: random(18, 75),
+      CustPhone: faker.phone.number('01########'),
+      CustEmail: faker.internet.email(firstName, lastName),
+      CustType: isForeigner ? 'FOREIGNER' : 'MALAYSIAN',
+      MaritalStatus: isMarried ? 'MARRIED' : 'SINGLE',
+    };
+    customers.push(customer);
+    // HACK: COMMENT ME
+    fs.writeFileSync(
+      "./insertSqls/00-InsertCustomer.txt",
+      inserter("Customer", customer),
+      { flag: 'a' }
+    );
+  }
 }
 
 // Facility (this jiu nonid generator le ba, just list the facility id here, in case other generator need use)
@@ -307,8 +311,9 @@ facilityReserved.forEach(fr => {
     FacilityReservedID: fr.FacilityReservedID,
     FacilityID: "",
   }
-  let previousFacilityIdx = [random(0, facilities.length - 1)]
-  for (let j = 0; j < random(0, facilities.length - 1); j++) {
+  let previousFacilityIdx = [random(0, facilities.length - 1)];
+  // one ppl maximum reserve 4 facility in one reservation
+  for (let j = 0; j < random(1, 4); j++) {
     let newIdx = random(0, facilities.length - 1);
     while (previousFacilityIdx.includes(newIdx))
       newIdx = random(0, facilities.length - 1);
@@ -522,7 +527,7 @@ reservations.forEach(r => {
     PackageID: "A",
   };
   let lastIdxRoom = [random(0, rooms.length - 1)];
-  for (let i = 0; i < random(2, 5); i++) {
+  for (let i = 0; i < random(1, 5); i++) {
     const shouldGtPackage = Math.random() > 0.5;
 
     // generate new idx if the room has repeated
@@ -593,12 +598,26 @@ facilityReserved.forEach(fr => {
   // get only the same facility reserved id (can get price)
   let faci = facilityReservedList.filter(frl => fr.FacilityReservedID === frl.FacilityReservedID);
   const shouldPromo = Math.random() > 0.5;
+  const totalDays = daysBetweenDates(
+    new Date(
+      fr.ReservedStartDate
+        .replace(/[()]/g, "")
+        .replace("TO_DATE", "")
+        .replace(", 'YYYY-MM-DD'", "")
+    ),
+    new Date(
+      fr.ReservedEndDate
+        .replace(/[()]/g, "")
+        .replace("TO_DATE", "")
+        .replace(", 'YYYY-MM-DD'", "")
+    ),
+  );
   const randomPromoIdx = random(0, promoCodes.length - 1);
   // very confirm every only got one key
   let randomPromo = Object.keys(promoCodes[randomPromoIdx])[0];
   // console.log(faci)
   let Amount = faci.reduce((acc, cur) => {
-    acc += facilities.find(f => f.FacilityID === cur.FacilityID).price;
+    acc += facilities.find(f => f.FacilityID === cur.FacilityID).price * totalDays;
     return acc;
   }, 0);
   Amount = Amount * (shouldPromo ? 1 - promoCodes[randomPromoIdx][randomPromo] : 1);
@@ -620,7 +639,7 @@ facilityReserved.forEach(fr => {
     PromoCode: shouldPromo ? randomPromo : "NULL",
     ReservationID: "NULL",
     FacilityReservedID: fr.FacilityReservedID,
-    PaymentType: paymentTypes[random(0, paymentTypes.length - 1)],
+    PaymentType: Amount > 7000 ? "CARD" : paymentTypes[random(0, paymentTypes.length - 1)],
     Amount,
   }
   payments.push(payment);
@@ -637,6 +656,20 @@ facilityReserved.forEach(fr => {
 currPaymentID = 1;
 let lastResPaymentDate = null;
 reservations.forEach(r => {
+  const totalDays = daysBetweenDates(
+    new Date(
+      r.StartDate
+        .replace(/[()]/g, "")
+        .replace("TO_DATE", "")
+        .replace(", 'YYYY-MM-DD'", "")
+    ),
+    new Date(
+      r.EndDate
+        .replace(/[()]/g, "")
+        .replace("TO_DATE", "")
+        .replace(", 'YYYY-MM-DD'", "")
+    ),
+  );
   // get only the same facility reserved id (can get price)
   let rid = reservedRooms.filter(rr => r.ReservationID === rr.ReservationID);
   // console.log(faci)
@@ -652,7 +685,7 @@ reservations.forEach(r => {
     // price of room of that room type
     // package increase
     let ppIncrease = roomPackages.find(rp => rp.PackageID === cur.PackageID).PackagePrice
-    acc += rto[rt] * ppIncrease;
+    acc += rto[rt] * ppIncrease * totalDays;
 
     return acc;
   }, 0);
@@ -685,7 +718,7 @@ reservations.forEach(r => {
     PromoCode: shouldPromo ? randomPromo : "NULL",
     ReservationID: r.ReservationID,
     FacilityReservedID: "NULL",
-    PaymentType: paymentTypes[random(0, paymentTypes.length - 1)],
+    PaymentType: Amount > 7000 ? "CARD" : paymentTypes[random(0, paymentTypes.length - 1)],
     Amount,
   }
   payments.push(payment);

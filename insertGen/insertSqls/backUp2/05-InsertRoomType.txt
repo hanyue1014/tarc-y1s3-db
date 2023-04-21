@@ -1,0 +1,10 @@
+INSERT INTO RoomType(RoomType,RoomDesc,RoomPrice) VALUES ('SIN','Single Room: A room assigned to one person',120);
+INSERT INTO RoomType(RoomType,RoomDesc,RoomPrice) VALUES ('DOU','Double Room: A room assigned to two people',239);
+INSERT INTO RoomType(RoomType,RoomDesc,RoomPrice) VALUES ('TRI','Triple Room: A room that can accommodate three persons',350);
+INSERT INTO RoomType(RoomType,RoomDesc,RoomPrice) VALUES ('FAM','Family Room: A room assigned to a family',400);
+INSERT INTO RoomType(roomType,roomDesc,roomPrice) VALUES ('STU','Studio: A room that has a smaall kitchenette with basic appliances',600);
+INSERT INTO RoomType(roomType,roomDesc,roomPrice) VALUES ('SUI','Suite: A room that has one or more bedrooms and a seperate living area',800);
+INSERT INTO RoomType(RoomType,RoomDesc,RoomPrice) VALUES ('PRE','President Suite: A luxurious room that has one or more bedrooms and a spacisous living area, including a big balcony for beautiful views',5500);
+INSERT INTO RoomType(RoomType,RoomDesc,RoomPrice) VALUES ('CON','Connected Room: A room that has an internal door that connects to another room (rented as pair)',750);
+INSERT INTO RoomType(RoomType,RoomDesc,RoomPrice) VALUES ('ACC','Accessible Room: A room specially designed for guests with disabilities or special needs',300);
+INSERT INTO RoomType(RoomType,RoomDesc,RoomPrice) VALUES ('VIL','Villa: A large and luxurious house-like structure that is detached from the main building',1000);

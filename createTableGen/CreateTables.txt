@@ -122,7 +122,7 @@ CREATE TABLE ReservedRoom (
 -- Promo (PromoCode, PromoDesc, PromoPercent)
 CREATE TABLE Promo (
   PromoCode       VARCHAR(6) NOT NULL,
-  PromoPlatform   VARCHAR(255),
+  PromoPlatform   VARCHAR(20),
   PromoPercent    NUMBER(5, 2) NOT NULL,  -- 100.00% max
   PRIMARY KEY (PromoCode),
   CONSTRAINT CHK_PROMO_PERCENT_MINMAX 
@@ -136,7 +136,7 @@ CREATE TABLE Payment (
   ReservationID         VARCHAR(10),
   FacilityReservedID    VARCHAR(10),
   PaymentType           VARCHAR(8) DEFAULT 'CASH',
-  Amount                NUMBER(7, 2) NOT NULL,
+  Amount                NUMBER(9, 2) NOT NULL,
   PRIMARY KEY (PaymentID),
   FOREIGN KEY (PromoCode) REFERENCES Promo(PromoCode),
   FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID),
