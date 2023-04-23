@@ -1,7 +1,8 @@
--- Promo (PromoCode, PromoDesc, PromoPercent)
+-- Promo (PromoCode, PromoPlatform, PromoDesc, PromoPercent)
 CREATE TABLE Promo (
   PromoCode       VARCHAR(6) NOT NULL,
   PromoPlatform   VARCHAR(20),
+  PromoDesc       VARCHAR(255),
   PromoPercent    NUMBER(5, 2) NOT NULL,  -- 100.00% max
   PRIMARY KEY (PromoCode),
   CONSTRAINT CHK_PROMO_PERCENT_MINMAX 

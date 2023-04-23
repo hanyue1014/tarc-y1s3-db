@@ -69,7 +69,7 @@ const useIDGen = ({ incrementRate, yearStart } = {}) => {
             dateData.dayIncremented = 10;  // set 4, next time increment will directly increment month
           }
           if (dateData.month === 10) {
-            shudIncrement = () => Math.random() > 0.95; // if month is 10 means next month is 11, shud have more customer per day
+            shudIncrement = () => Math.random() > 0.85; // if month is 10 means next month is 11, shud have more customer per day
           }
         } else if (dateData.month === 2) {
           if (dateData.day >= 28) {
@@ -621,6 +621,7 @@ facilityReserved.forEach(fr => {
     return acc;
   }, 0);
   Amount = Amount * (shouldPromo ? 1 - promoCodes[randomPromoIdx][randomPromo] : 1);
+  Amount = Math.round((Amount + Number.EPSILON) * 10) / 10;  // round to one dp
   // console.log(totalPrice);
   let paymentDate = randomDateGreaterThanID(fr.FacilityReservedID, {max: 1});
   if (lastFacPaymentDate && lastFacPaymentDate < paymentDate) {
@@ -696,6 +697,7 @@ reservations.forEach(r => {
   let randomPromo = Object.keys(promoCodes[randomPromoIdx])[0];
 
   Amount = Amount * (shouldPromo ? 1 - promoCodes[randomPromoIdx][randomPromo] : 1);
+  Amount = Math.round((Amount + Number.EPSILON) * 10) / 10;  // round to one dp
   // console.log(totalPrice);
   let paymentDate = randomDateGreaterThanID(r.ReservationID, {max: 1});
   // fetch last payment id of the facility part (in case got that date)

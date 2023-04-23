@@ -118,7 +118,7 @@ const roomTypes = [
   },
   {
     roomType: "STU",
-    roomDesc: "Studio: A room that has a smaall kitchenette with basic appliances",
+    roomDesc: "Studio: A room that has a small kitchenette with basic appliances",
     roomPrice: 600.00,
   },
   {
@@ -156,7 +156,7 @@ roomTypes.forEach(rt => {
 const roomPackages = [
   {
     PackageID: "A",
-    PackageDesc: "Just an ordinary room, without that added goodies",
+    PackageDesc: "A package with only an ordinary room, without any added goodies. Enjoy the vanilla stay without any extra cost!",
     PackagePrice: 1
   },
   {
@@ -215,52 +215,62 @@ const promo = [
   {
     PromoCode: "YTDISC",
     PromoPercent: 0.1,
-    PromoPlatform: "YOUTUBE"
+    PromoPlatform: "YOUTUBE",
+    PromoDesc: "Advertisement placed on YouTube"
   },
   {
     PromoCode: "FBDISC",
     PromoPercent: 0.2,
-    PromoPlatform: "FACEBOOK"
+    PromoPlatform: "FACEBOOK",
+    PromoDesc: "Advertisement placed on Facebook"
   },
   {
     PromoCode: "TTDISC",
     PromoPercent: 0.1,
-    PromoPlatform: "TWITTER"
+    PromoPlatform: "TWITTER",
+    PromoDesc: "Advertisement placed on Twitter"
   },
   {
     PromoCode: "IGDISC",
     PromoPercent: 0.2,
-    PromoPlatform: "INSTAGRAM"
+    PromoPlatform: "INSTAGRAM",
+    PromoDesc: "Advertisement placed on Instagram"
   },
   {
     PromoCode: "WSDISC",
     PromoPercent: 0.25,
-    PromoPlatform: "WEBSITE"
+    PromoPlatform: "WEBSITE",
+    PromoDesc: "Advertisement placed on websites (using google ads)"
   },
   {
     PromoCode: "BNDISC",
     PromoPercent: 0.1,
-    PromoPlatform: "BANNER"
+    PromoPlatform: "BANNER",
+    PromoDesc: "Advertisement placed on banners by the roadside"
   },
   {
     PromoCode: "TG1234",
     PromoPercent: 0.2,
-    PromoPlatform: "THANKSGIVING"
+    PromoPlatform: "THANKSGIVING",
+    PromoDesc: "Appreciation for frequent customers"
   },
   {
     PromoCode: "TG4231",
     PromoPercent: 0.3,
-    PromoPlatform: "THANKSGIVING"
+    PromoPlatform: "THANKSGIVING",
+    PromoDesc: "Chinese New Year Discount"
   },
   {
     PromoCode: "TG5678",
     PromoPercent: 0.3,
-    PromoPlatform: "THANKSGIVING"
+    PromoPlatform: "THANKSGIVING",
+    PromoDesc: "Hari Raya Discount"
   },
   {
     PromoCode: "TG8765",
     PromoPercent: 0.35,
-    PromoPlatform: "THANKSGIVING"
+    PromoPlatform: "THANKSGIVING",
+    PromoDesc: "Launch new website easter egg"
   }
 ];
 

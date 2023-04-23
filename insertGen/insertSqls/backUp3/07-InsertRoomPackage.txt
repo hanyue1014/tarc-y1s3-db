@@ -1,4 +1,4 @@
-INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('A','A package with only an ordinary room, without any added goodies. Enjoy the vanilla stay without any extra cost!',1);
+INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('A','Just an ordinary room, without that added goodies',1);
 INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('B','A package that allows you to enjoy the delicious breakfast with only 10% add on',1.1);
 INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('C','A package with all the goodies of Package B (breakfast) with an additional lunch by adding on 15%',1.15);
 INSERT INTO RoomPackage(PackageID,PackageDesc,PackagePrice) VALUES ('D','A package with the most complete goodies, including breakfast, lunch and dinner, by just adding on 20%',1.2);
