@@ -50,7 +50,7 @@ const useIDGen = ({ incrementRate, yearStart } = {}) => {
     let generated = `${dateData.year}${twoDigitFormat(dateData.month)}${twoDigitFormat(dateData.day)}${digitFormat(dateData.row++, 4)}`;
     if (shudIncrement()) {
       dateData.row = 1;  // new date d, reset ID
-      if (dateData.dayIncremented >= 10) {
+      if (dateData.dayIncremented >= 14) {
         dateData.dayIncremented = 0;
         dateData.day = 1;
         dateData.month++;
@@ -61,12 +61,12 @@ const useIDGen = ({ incrementRate, yearStart } = {}) => {
       } else {
         dateData.dayIncremented++
         // generate a number between 1 and 3, increment date by that number
-        dateData.day += random(1, 3);
+        dateData.day += random(1, 2);
         // max 31
         if ([1, 3, 5, 7, 8, 10, 12].includes(dateData.month)) {
           if (dateData.day >= 31) {
             dateData.day = 31;
-            dateData.dayIncremented = 10;  // set 4, next time increment will directly increment month
+            dateData.dayIncremented = 14;  // set 4, next time increment will directly increment month
           }
           if (dateData.month === 10) {
             shudIncrement = () => Math.random() > 0.85; // if month is 10 means next month is 11, shud have more customer per day
@@ -74,14 +74,14 @@ const useIDGen = ({ incrementRate, yearStart } = {}) => {
         } else if (dateData.month === 2) {
           if (dateData.day >= 28) {
             dateData.day = 28;
-            dateData.dayIncremented = 10;
+            dateData.dayIncremented = 14;
           }
         } else if (dateData.day >= 30) {
           dateData.day = 30;
-          dateData.dayIncremented = 10;
+          dateData.dayIncremented = 14;
           if (dateData.month === 11) {
             // if month is 11 d means next month is 12, shud have more more more customer per day
-            shudIncrement = () => Math.random() > 0.99;
+            shudIncrement = () => Math.random() > 0.99999999;
           }
         }
       }
@@ -115,7 +115,7 @@ const randomDateGreaterHour = (date) => {
   // console.log(date);
   const newDate = new Date(date);
 
-  newDate.setHours(newDate.getHours() + random(1, 14));
+  newDate.setHours(newDate.getHours() + random(8, 16));
   return newDate;
 }
 
